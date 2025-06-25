@@ -1,4 +1,4 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions.cell;
 
 import org.apache.poi.ss.usermodel.*;
 import org.assertj.core.api.SoftAssertions;

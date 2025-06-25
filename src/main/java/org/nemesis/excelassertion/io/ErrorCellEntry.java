@@ -1,4 +1,4 @@
-package excelAssertions.io;
+package org.nemesis.excelassertion.io;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -1,9 +1,10 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.assertj.core.api.SoftAssertions;
 import org.jetbrains.annotations.NotNull;
+import org.nemesis.excelassertion.assertions.cell.CellAssertion;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions.cell;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -8,7 +8,7 @@ import org.assertj.core.api.SoftAssertions;
 @lombok.Getter(lombok.AccessLevel.PACKAGE)
 @lombok.EqualsAndHashCode(callSuper = true)
 public final class EmptyCellAssertion extends CellAssertion<EmptyCellAssertion> {
-    EmptyCellAssertion(String cellAddress) {
+    public EmptyCellAssertion(String cellAddress) {
         super(cellAddress);
     }
 

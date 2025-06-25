@@ -1,4 +1,4 @@
-package excelAssertions.io;
+package org.nemesis.excelassertion.io;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;

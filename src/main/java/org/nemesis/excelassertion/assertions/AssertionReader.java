@@ -1,6 +1,9 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions;
 
-import excelAssertions.io.*;
+import org.nemesis.excelassertion.io.*;
+import org.nemesis.excelassertion.assertions.cell.*;
+import org.nemesis.excelassertion.assertions.text.*;
+import org.nemesis.excelassertion.assertions.number.*;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,4 +1,4 @@
-package excelAssertions.io;
+package org.nemesis.excelassertion.io;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +18,7 @@ public final class FormulaCellEntry<T> implements CellEntry<T> {
     }
 
     public static <T> FormulaCellEntry<T> ofValue(@NotNull CellEntry<T> resultCell, @NotNull String formula) {
-        return new FormulaCellEntry<T>(resultCell.address(), formula, resultCell.value(), resultCell.format(), resultCell.comment());
+        return new FormulaCellEntry<>(resultCell.address(), formula, resultCell.value(), resultCell.format(), resultCell.comment());
     }
 
     public static FormulaCellEntry<Object> ofNoValue(@NotNull String address, @NotNull String formula) {return ofNoValue(address, formula, null);}
@@ -26,7 +26,7 @@ public final class FormulaCellEntry<T> implements CellEntry<T> {
     public static FormulaCellEntry<Object> ofNoValue(@NotNull String address, @NotNull String formula, String format) {return ofNoValue(address, formula, format, null);}
 
     public static FormulaCellEntry<Object> ofNoValue(@NotNull String address, @NotNull String formula, String format, String comment) {
-        return new FormulaCellEntry<Object>(address, formula, null, format, comment);
+        return new FormulaCellEntry<>(address, formula, null, format, comment);
     }
 
     @Override

@@ -1,8 +1,6 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions.number;
 
-import org.assertj.core.api.AbstractLongAssert;
-
-public class UlpAssertions {
+class UlpAssertions {
 
     public static void assertThatDoubleIsCloseToInUlps(double actual, double expected, long maxUlps) {
         if (Double.isNaN(actual) || Double.isNaN(expected)) {

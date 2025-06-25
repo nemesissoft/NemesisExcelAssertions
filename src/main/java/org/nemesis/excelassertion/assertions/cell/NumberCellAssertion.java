@@ -1,8 +1,9 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions.cell;
 
 import org.apache.poi.ss.usermodel.*;
 import org.assertj.core.api.SoftAssertions;
 import org.jetbrains.annotations.NotNull;
+import org.nemesis.excelassertion.assertions.number.NumberAssertion;
 
 
 @lombok.Getter(lombok.AccessLevel.PACKAGE)

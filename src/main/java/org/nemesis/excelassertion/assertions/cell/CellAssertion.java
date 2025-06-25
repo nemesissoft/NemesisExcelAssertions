@@ -1,8 +1,10 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions.cell;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
 import org.assertj.core.api.SoftAssertions;
+import org.nemesis.excelassertion.assertions.text.EqualsTextAssertion;
+import org.nemesis.excelassertion.assertions.text.TextAssertion;
 
 //@lombok.Getter(lombok.AccessLevel.PACKAGE)
 @lombok.EqualsAndHashCode(callSuper = false)
@@ -59,7 +61,7 @@ public sealed abstract class CellAssertion<TAssertion extends CellAssertion<TAss
 
     String getFullCellAddress() {return "%s!%s".formatted(sheetName, cellAddress);}
 
-    TAssertion withSheetName(String sheetName) {
+    public TAssertion withSheetName(String sheetName) {
         this.sheetName = sheetName;
         return self();
     }
@@ -71,7 +73,7 @@ public sealed abstract class CellAssertion<TAssertion extends CellAssertion<TAss
     }
 
 
-    final void applyAssert(Cell cell, SoftAssertions softly) {
+    public final void applyAssert(Cell cell, SoftAssertions softly) {
         if (expectedFormat != null) {
             var softAssert = softly.assertThat(getCellFormat(cell))
                     .as(() -> "cell format at %s!%s to %s".formatted(sheetName, cellAddress, expectedFormat.toString()));
@@ -126,7 +128,7 @@ public sealed abstract class CellAssertion<TAssertion extends CellAssertion<TAss
         return FormatCategory.OTHER;
     }
 
-    Cell getCell(Sheet sheet) {
+    public Cell getCell(Sheet sheet) {
         CellReference cellReference = new CellReference(cellAddress);
         Row row = sheet.getRow(cellReference.getRow());
         if (row == null) return null;

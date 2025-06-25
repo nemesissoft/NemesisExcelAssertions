@@ -1,9 +1,11 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions;
 
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellReference;
 import org.assertj.core.data.Offset;
 import org.assertj.core.data.Percentage;
+import org.nemesis.excelassertion.assertions.text.*;
+import org.nemesis.excelassertion.assertions.number.*;
+import org.nemesis.excelassertion.assertions.cell.*;
 
 import java.io.*;
 

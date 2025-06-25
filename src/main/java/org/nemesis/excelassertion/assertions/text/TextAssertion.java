@@ -1,14 +1,12 @@
-package excelAssertions;
+package org.nemesis.excelassertion.assertions.text;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import org.assertj.core.api.AbstractStringAssert;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
 
 @com.fasterxml.jackson.databind.annotation.JsonSerialize(using = TextAssertion.TextAssertionSerializer.class)
 @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = TextAssertion.TextAssertionDeserializer.class)
@@ -37,7 +35,7 @@ public sealed abstract class TextAssertion<TAssertion extends TextAssertion<TAss
         return (TAssertion) this;
     }
 
-    protected abstract void apply(AbstractStringAssert<? extends AbstractStringAssert<?>> assertion);
+    public abstract void apply(AbstractStringAssert<? extends AbstractStringAssert<?>> assertion);
 
     private static final String IGNORE_CASE = "ignoreCase";
     private static final String IGNORE_NEW_LINES = "ignoreNewLines";
@@ -135,130 +133,5 @@ public sealed abstract class TextAssertion<TAssertion extends TextAssertion<TAss
                 default -> throw new JsonMappingException(p, "Unhandled operation key: " + op);
             };
         }
-    }
-}
-
-final class EqualsTextAssertion extends TextAssertion<EqualsTextAssertion> {
-    final String expected;
-    boolean ignoreNewLines;
-
-    public EqualsTextAssertion(String expected, boolean ignoreCase, boolean ignoreNewLines) {
-        super(ignoreCase);
-        this.expected = expected;
-        this.ignoreNewLines = ignoreNewLines;
-    }
-
-    public EqualsTextAssertion ignoreNewLines() {
-        this.ignoreNewLines = true;
-        return this;
-    }
-
-    public EqualsTextAssertion respectNewLines() {
-        this.ignoreNewLines = false;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "equal '%s' %s, %s".formatted(expected, ignoreCase ? "ignoring case" : "case sensitive", ignoreNewLines ? "ignoring new lines" : "respecting new lines");
-    }
-
-    @Override
-    protected void apply(AbstractStringAssert<? extends AbstractStringAssert<?>> assertion) {
-        if (this.ignoreNewLines) {
-            Comparator<String> baseComparator = (s1, s2) ->
-                    normalizeNewLines(s1, this.ignoreCase).compareTo(
-                            normalizeNewLines(s2, this.ignoreCase)
-                    );
-
-            assertion.usingComparator(Comparator.nullsFirst(baseComparator)).isEqualTo(this.expected);
-        } else {
-            if (this.ignoreCase) assertion.isEqualToIgnoringCase(this.expected);
-            else assertion.isEqualTo(this.expected);
-        }
-    }
-
-    private static String normalizeNewLines(String s, boolean ignoreCase) {
-        if (s == null) return null;
-        String withoutNewlines = s.replaceAll("\\R", " ")  // replaces any newline with a space
-                .replaceAll("\\s+", " ") // collapse multiple spaces
-                .trim(); // optional: remove leading/trailing spaces
-        return ignoreCase ? withoutNewlines.toLowerCase() : withoutNewlines;
-    }
-}
-
-final class ContainsTextAssertion extends TextAssertion<ContainsTextAssertion> {
-    final String expectedSubstring;
-
-    @SuppressWarnings("ConstantValue")
-    public ContainsTextAssertion(@NotNull String expectedSubstring, boolean ignoreCase) {
-        super(ignoreCase);
-        if (expectedSubstring == null)
-            throw new IllegalArgumentException("expectedSubstring cannot be null");
-        this.expectedSubstring = expectedSubstring;
-    }
-
-    @Override
-    public String toString() {
-        return "contain '%s' %s".formatted(expectedSubstring, ignoreCase ? "ignoring case" : "case sensitive");
-    }
-
-    @Override
-    protected void apply(AbstractStringAssert<? extends AbstractStringAssert<?>> assertion) {
-        if (this.ignoreCase) assertion.containsIgnoringCase(this.expectedSubstring);
-        else assertion.contains(this.expectedSubstring);
-    }
-}
-
-final class PatternTextAssertion extends TextAssertion<PatternTextAssertion> {
-    final String pattern;
-    boolean dotallMode;
-
-    /**
-     * Enables dotall mode.
-     *
-     * <p> In dotall mode, the expression {@code .} matches any character,
-     * including a line terminator.  By default, this expression does not match
-     * line terminators.
-     *
-     * <p> Dotall mode can also be enabled via the embedded flag
-     * expression&nbsp;{@code (?s)}.  (The {@code s} is a mnemonic for
-     * "single-line" mode, which is what this is called in Perl.)  </p>
-     */
-    public PatternTextAssertion dotallMode() {
-        this.dotallMode = true;
-        return this;
-    }
-
-    public PatternTextAssertion noDotallMode() {
-        this.dotallMode = false;
-        return this;
-    }
-
-    @SuppressWarnings("ConstantValue")
-    public PatternTextAssertion(@NotNull String pattern, boolean ignoreCase, boolean dotallMode) {
-        super(ignoreCase);
-        if (pattern == null)
-            throw new IllegalArgumentException("pattern cannot be null");
-
-        this.pattern = pattern;
-        this.dotallMode = dotallMode;
-    }
-
-    @Override
-    public String toString() {
-        return "match '%s' %s, %s".formatted(pattern, ignoreCase ? "ignoring case" : "case sensitive", dotallMode ? "dotallMode" : "no dotallMode(default)");
-    }
-
-    @Override
-    protected void apply(AbstractStringAssert<?> assertion) {
-        int flags = 0;
-        if (this.ignoreCase) flags |= Pattern.CASE_INSENSITIVE;
-        if (this.dotallMode) flags |= Pattern.DOTALL;
-
-        //flags |= Pattern.COMMENTS;
-
-        Pattern pattern = Pattern.compile(this.pattern, flags);
-        assertion.matches(pattern);
     }
 }
