@@ -85,7 +85,7 @@ public sealed abstract class TextAssertion<TAssertion extends TextAssertion<TAss
     static class TextAssertionDeserializer extends JsonDeserializer<TextAssertion<?>> {
 
         @Override
-        public TextAssertion<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public TextAssertion<?> deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
             JsonNode node = p.getCodec().readTree(p);
 
             // Validate all field names

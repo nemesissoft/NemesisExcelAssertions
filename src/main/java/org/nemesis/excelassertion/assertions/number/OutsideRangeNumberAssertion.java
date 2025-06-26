@@ -17,9 +17,8 @@ public record OutsideRangeNumberAssertion(double from, double to, boolean exclus
         assertion.satisfies(actual -> {
             boolean left = exclusiveFrom ? actual <= from : actual < from;
             boolean right = exclusiveTo ? actual >= to : actual > to;
-            if (!(left || right)) {
-                throw new AssertionError("Expected number to be " + toString() + " but was " + actual);
-            }
+            if (!(left || right))
+                throw new AssertionError("Expected number to be %s but was %s".formatted(this, actual));
         });
     }
 

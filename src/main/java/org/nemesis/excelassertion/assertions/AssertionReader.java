@@ -12,10 +12,14 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public class AssertionReader {
-    public static void readFrom(String assertionFilePath, ExcelAssert excelAssert) {readFrom(new File(assertionFilePath), excelAssert);}
+    private final ExcelAssert excelAssert;
+
+    public AssertionReader(ExcelAssert excelAssert) {
+        this.excelAssert = excelAssert;
+    }
 
     @lombok.SneakyThrows
-    public static void readFrom(File assertionFile, ExcelAssert excelAssert) {
+    public void readFrom(File assertionFile) {
         try (var fis = new FileInputStream(assertionFile);
              var workbook = WorkbookFactory.create(fis)
         ) {

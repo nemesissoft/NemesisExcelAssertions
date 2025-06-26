@@ -87,20 +87,4 @@ public class ExcelAssertionBuilder {
 
         public CellAssertion<?> exists() {return new SimpleCellAssertion(cellAddress);}
     }
-
-    /*public class ExcelColumnAssertionBuilder {
-        private final int columnIndex;
-        private final int baseRowOffset;
-
-        ExcelColumnAssertionBuilder(int columnIndex, int baseRowOffset) {
-            this.columnIndex = columnIndex;
-            this.baseRowOffset = baseRowOffset;
-        }
-
-        public ExcelCellAssertionBuilder inRow(int absoluteRowOneBased) {
-            int row = (absoluteRowOneBased - 1) + baseRowOffset;
-            CellReference cellRef = new CellReference(row, columnIndex);
-            return new ExcelCellAssertionBuilder(cellRef.formatAsString());
-        }
-    }*/
 }

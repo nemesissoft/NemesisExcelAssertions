@@ -15,11 +15,10 @@ import java.util.*;
 import static org.nemesis.excelassertion.assertions.ExcelAssertionBuilder.*;
 import static org.assertj.core.api.Assertions.*;
 
-class ExcelSoftAssertionTest {
+class ExcelAssertionBuilderTest {
     private ExcelAssert assertThatExcelFile;
     private File exampleFile;
 
-//TODO
     @Test
     @lombok.SneakyThrows
     void testMultipleExcelCellFailures() {

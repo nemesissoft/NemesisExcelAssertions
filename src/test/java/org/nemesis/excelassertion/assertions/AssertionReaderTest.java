@@ -17,15 +17,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.nemesis.excelassertion.assertions.ExcelAssertionBuilder.*;
 
 class AssertionReaderTest {
-    private ExcelAssert assertThatExcelFile;
+    private ExcelAssert excelAssert;
     private File assertionsFile;
     private File dummyFile;
 
     @Test
     void readFrom_ShouldReadAssertionsFromExcel() {
         usingNewExcelFile();
-        AssertionReader.readFrom(assertionsFile, assertThatExcelFile);
-        var actualAssertions = assertThatExcelFile.getAssertions();
+        new AssertionReader(excelAssert).readFrom(assertionsFile);
+        var actualAssertions = excelAssert.getAssertions();
 
         var expectedAssertions = Stream.of(
                 new ExpAss(1, new EmptyCellAssertion("B1")),
@@ -96,19 +96,19 @@ class AssertionReaderTest {
             generateDummyExcelFile(outDummy);
             //java.awt.Desktop.getDesktop().open(dummyFile);
         }
-        assertThatExcelFile = assertThatExcel(dummyFile);
+        excelAssert = assertThatExcel(dummyFile);
     }
 
     @AfterEach
     @lombok.SneakyThrows
     void tearDown() {
-        if (assertThatExcelFile != null) {
+        if (excelAssert != null) {
             try {
-                assertThatExcelFile.close();
+                excelAssert.close();
             } catch (AssertionError ignored) {
                 //AssertionError is expected as no real data are stored in dummy workbook
             }
-            assertThatExcelFile = null;
+            excelAssert = null;
         }
 
         if (assertionsFile != null) Files.deleteIfExists(assertionsFile.toPath());
