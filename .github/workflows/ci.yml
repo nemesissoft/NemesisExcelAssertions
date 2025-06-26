@@ -1,0 +1,107 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types:
+      - published
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and run tests
+        run: mvn -B package --file pom.xml # -B for batch mode, good for CI
+
+  release-to-maven-central:
+    # This job only runs when a release is published
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    needs: build-and-test # Ensure tests pass before attempting to release
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Import GPG key
+        # This step is crucial for signing artifacts for Maven Central
+        # You need to generate a GPG key pair and add your private key
+        # as a GitHub Secret named MAVEN_GPG_PRIVATE_KEY
+        # and its passphrase as MAVEN_GPG_PASSPHRASE.
+        # Example of how to generate and export:
+        # gpg --batch --gen-key gpg-key-input.txt (with No-Passphrase for testing or set in gpg-key-input.txt)
+        # gpg --export-secret-keys --armor <KEY_ID>
+        # Ensure you use --batch and --yes for non-interactive mode.
+        run: |
+          echo "${{ secrets.MAVEN_GPG_PRIVATE_KEY }}" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG # For debugging, shows imported keys
+
+      - name: Configure Maven settings.xml
+        # Create a settings.xml file with server credentials for Sonatype OSSRH
+        # You need to set the following GitHub Secrets:
+        # OSSRH_USERNAME: Your Sonatype OSSRH username
+        # OSSRH_PASSWORD: Your Sonatype OSSRH password
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>ossrh</id>
+                <username>${{ secrets.OSSRH_USERNAME }}</username>
+                <password>${{ secrets.OSSRH_PASSWORD }}</password>
+              </server>
+            </servers>
+            <profiles>
+              <profile>
+                <id>ossrh</id>
+                <activation>
+                  <activeByDefault>true</activeByDefault>
+                </activation>
+                <properties>
+                  <gpg.executable>gpg</gpg.executable>
+                  <gpg.passphrase>${{ secrets.MAVEN_GPG_PASSPHRASE }}</gpg.passphrase>
+                </properties>
+              </profile>
+            </profiles>
+          </settings>
+          EOF
+
+      - name: Deploy to Maven Central
+        # This command builds the project, signs it, and pushes it to Maven Central
+        # Make sure your pom.xml has the necessary distributionManagement section
+        # pointing to the Sonatype OSSRH repository.
+        # For example:
+        # <distributionManagement>
+        #   <snapshotRepository>
+        #     <id>ossrh</id>
+        #     <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        #   </snapshotRepository>
+        #   <repository>
+        #     <id>ossrh</id>
+        #     <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        #   </repository>
+        # </distributionManagement>
+        run: mvn -B clean deploy -P ossrh # -P ossrh activates the profile for signing
+
