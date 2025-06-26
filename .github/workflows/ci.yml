@@ -14,25 +14,26 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    name: 📦 build and test
     steps:
-      - name: Checkout code
+      - name: 🤘 Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: 🔎 Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and run tests
+      - name: 🧪 Build and run tests
         run: mvn -B package --file pom.xml # -B for batch mode, good for CI
 
-      - name: Publish Test Report
+      - name: 📊 Publish Test Report
         uses: dorny/test-reporter@v2
         if: success() || failure()
         with:
-          name: Maven Test Results
+          name: 📊 Maven Test Results
           path: target/surefire-reports/*.xml # Path to the Surefire XML report files
           reporter: java-junit # The format of the report file
 
