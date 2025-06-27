@@ -5,6 +5,7 @@ import org.apache.poi.ss.util.CellReference;
 import org.assertj.core.api.SoftAssertions;
 import io.github.michalbrylka.excelassertion.assertions.text.EqualsTextAssertion;
 import io.github.michalbrylka.excelassertion.assertions.text.TextAssertion;
+import org.assertj.core.api.StringAssert;
 
 //@lombok.Getter(lombok.AccessLevel.PACKAGE)
 @lombok.EqualsAndHashCode(callSuper = false)
@@ -76,20 +77,25 @@ public sealed abstract class CellAssertion<TAssertion extends CellAssertion<TAss
     public final void applyAssert(Cell cell, SoftAssertions softly) {
         if (expectedFormat != null) {
             var softAssert = softly.assertThat(getCellFormat(cell))
-                    .as(() -> "cell format at %s!%s to %s".formatted(sheetName, cellAddress, expectedFormat.toString()));
+                    .as(() -> "cell format at %s to %s".formatted(getFullCellAddress(), expectedFormat.toString()));
             expectedFormat.apply(softAssert);
         }
         if (expectedFormatCategory != null) {
             var actual = detectFormatCategory(cell);
             softly.assertThat(actual)
-                    .as(() -> "expected format category at %s!%s".formatted(sheetName, cellAddress))
+                    .as(() -> "expected format category at %s".formatted(getFullCellAddress()))
                     .isEqualTo(expectedFormatCategory);
         }
 
         if (expectedComment != null) {
-            var softAssert = softly.assertThat(getCellComment(cell))
-                    .as(() -> "cell comment at %s!%s to %s".formatted(sheetName, cellAddress, expectedComment.toString()));
-            expectedComment.apply(softAssert);
+            String comment = getCellComment(cell);
+            StringAssert softAssert = softly.assertThat(getCellComment(cell));
+            if (comment != null) {
+                softAssert.as(() -> "cell comment at %s to %s".formatted(getFullCellAddress(), expectedComment.toString()));
+                expectedComment.apply(softAssert);
+            } else
+                softAssert.withFailMessage(() -> "comment at %s is expected to exist".formatted(getFullCellAddress()))
+                        .isNotNull();
         }
 
         applyAssertCore(cell, softly);
