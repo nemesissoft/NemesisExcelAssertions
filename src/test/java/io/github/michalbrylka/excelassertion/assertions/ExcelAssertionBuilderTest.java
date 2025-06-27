@@ -278,7 +278,7 @@ class ExcelAssertionBuilderTest {
                 Arguments.of(
                         Named.of("A3 error not equal to '#NUM!\\r' respecting new lines", "Errors"),
                         cellAt("A3").withErrorText(equalTo("#NUM!\r").respectNewLines()),
-                        "expected: \"#NUM!"
+                        "\"#NUM!"
                 ),
                 Arguments.of(
                         Named.of("A4 error not matching \"^#VaL\\\\w[a-z]!$\" CS", "Errors"),
