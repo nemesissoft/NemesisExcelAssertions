@@ -3,6 +3,7 @@ package io.github.michalbrylka.excelassertion.assertions;
 import io.github.michalbrylka.excelassertion.assertions.cell.CellAssertion;
 import io.github.michalbrylka.excelassertion.io.*;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.*;
@@ -19,6 +20,8 @@ import java.util.*;
 
 import static io.github.michalbrylka.excelassertion.assertions.ExcelAssertionBuilder.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class ExcelAssertionBuilderTest {
     private ExcelAssert assertThatExcelFile;
@@ -94,7 +97,10 @@ class ExcelAssertionBuilderTest {
                         cellAt("A9").exists().withComment(matching("\\waL[ue]{2}").ignoreCase())
                 )
         ;
-        assertThatExcelFile.close();
+        assertThatCode(() -> assertThatExcelFile.close())
+                .doesNotThrowAnyException();
+
+        assertThat(assertThatExcelFile.getAssertions()).hasSize(39);
     }
 
     @ParameterizedTest(name = "[{index}] {0}")
@@ -115,9 +121,14 @@ class ExcelAssertionBuilderTest {
         return Stream.of(
                 // Empty cell
                 Arguments.of(
-                        Named.of("B1 not empty in sheet 1", 1),
+                        Named.of("A1 not empty in sheet 1", 1),
+                        cellAt("A1").empty(),
+                        "dupa"
+                ),
+                Arguments.of(
+                        Named.of("B1 is empty in sheet 1", 1),
                         cellAt("B1").withNumber(equalTo(1.0)),
-                        "cannot add assertion for cell Strings!B1:'<EMPTY>'"
+                        "dupa"
                 ),
                 // Numbers
                 Arguments.of(
@@ -332,7 +343,9 @@ class ExcelAssertionBuilderTest {
 
     @lombok.SneakyThrows
     @BeforeAll
-    static void createTestFile() {
+    static void globalSetup() {
+        Assertions.setRemoveAssertJRelatedElementsFromStackTrace(true);
+
         exampleFile = Files.createTempFile("Example-", ".xlsx").toFile();
         try (FileOutputStream out = new FileOutputStream(exampleFile)) {
             generateTestExcelFile(out);

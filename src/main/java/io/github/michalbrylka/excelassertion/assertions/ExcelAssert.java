@@ -1,7 +1,11 @@
 package io.github.michalbrylka.excelassertion.assertions;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellReference;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.jetbrains.annotations.NotNull;
 import io.github.michalbrylka.excelassertion.assertions.cell.CellAssertion;
@@ -74,8 +78,14 @@ public final class ExcelAssert implements AutoCloseable {
 
         cellAssertion
                 .withSheetName(sheet.getSheetName()) //bind sheet name for logging purposes
-                .applyAssert(cellAssertion.getCell(sheet), softly);
+                .applyAssert(getCell(cellAssertion, sheet), softly);
         assertions.add(new CellAssertionAtSheet(cellAssertion, sheetRef));
+    }
+
+    private static @NotNull Cell getCell(CellAssertion<?> cellAssertion, Sheet sheet) {
+        var ref = new CellReference(cellAssertion.getCellAddress());
+        Row row = sheet.getRow(ref.getRow()) instanceof Row r ? r : sheet.createRow(ref.getRow());
+        return row.getCell(ref.getCol()) instanceof Cell c ? c : row.createCell(ref.getCol());
     }
 
     @Override

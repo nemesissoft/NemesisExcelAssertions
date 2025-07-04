@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.assertj.core.api.SoftAssertions;
 
 @lombok.Getter(lombok.AccessLevel.PACKAGE)
-@lombok.EqualsAndHashCode(callSuper = false)
+@lombok.EqualsAndHashCode(callSuper = true)
 public final class SimpleCellAssertion extends CellAssertion<SimpleCellAssertion> {
     public SimpleCellAssertion(String cellAddress) {
         super(cellAddress);

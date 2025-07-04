@@ -1,7 +1,6 @@
 package io.github.michalbrylka.excelassertion.assertions.cell;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellReference;
 import org.assertj.core.api.SoftAssertions;
 import io.github.michalbrylka.excelassertion.assertions.text.EqualsTextAssertion;
 import io.github.michalbrylka.excelassertion.assertions.text.TextAssertion;
@@ -10,8 +9,9 @@ import org.assertj.core.api.StringAssert;
 //@lombok.Getter(lombok.AccessLevel.PACKAGE)
 @lombok.EqualsAndHashCode(callSuper = false)
 public sealed abstract class CellAssertion<TAssertion extends CellAssertion<TAssertion>>
-        permits SimpleCellAssertion, EmptyCellAssertion, ValueCellAssertion {
+        permits SimpleCellAssertion, ValueCellAssertion {
 
+    @lombok.Getter
     protected final String cellAddress;
     protected TextAssertion<?> expectedFormat;
     protected FormatCategory expectedFormatCategory;
@@ -132,12 +132,5 @@ public sealed abstract class CellAssertion<TAssertion extends CellAssertion<TAss
             if (format.contains("@")) return FormatCategory.TEXT;
         }
         return FormatCategory.OTHER;
-    }
-
-    public Cell getCell(Sheet sheet) {
-        CellReference cellReference = new CellReference(cellAddress);
-        Row row = sheet.getRow(cellReference.getRow());
-        if (row == null) return null;
-        return row.getCell(cellReference.getCol());
     }
 }

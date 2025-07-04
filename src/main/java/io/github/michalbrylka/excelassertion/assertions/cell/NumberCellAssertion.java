@@ -20,7 +20,10 @@ public final class NumberCellAssertion extends ValueCellAssertion<Double, Number
     protected void assertOnValue(Double actualValue, SoftAssertions softly) {
         var softAssert = softly.assertThat(actualValue)
                 .as(() -> "number at %s to %s".formatted(getFullCellAddress(), assertion.toString()));
-        assertion.apply(softAssert);
+
+        if (actualValue == null)
+            softAssert.isNotNull();
+        else assertion.apply(softAssert);
     }
 
     @Override
