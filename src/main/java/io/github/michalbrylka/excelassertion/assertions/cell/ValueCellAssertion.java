@@ -13,10 +13,8 @@ public sealed abstract class ValueCellAssertion<TValue, TAssertion extends Value
         super(cellAddress);
     }
 
-    TODO  org.assertj.print.stacktrace
     @Override
     protected final void applyAssertCore(Cell cell, SoftAssertions softly) {
-
         CellType cellType = cell.getCellType();
         if (isCellTypeSupported(cellType)) {
             assertOnValue(fromCell(cell), softly);

@@ -18,12 +18,11 @@ import static io.github.michalbrylka.excelassertion.assertions.ExcelAssertionBui
 
 class AssertionReaderTest {
     private ExcelAssert excelAssert;
-    private File assertionsFile;
-    private File dummyFile;
+    private static File assertionsFile;
+    private static File dummyFile;
 
     @Test
     void readFrom_ShouldReadAssertionsFromExcel() {
-        usingNewExcelFile();
         new AssertionReader(excelAssert).readFrom(assertionsFile);
         var actualAssertions = excelAssert.getAssertions();
 
@@ -83,25 +82,13 @@ class AssertionReaderTest {
 
     record ExpAss(@NotNull Object sheetRef, @NotNull CellAssertion<?> assertion) {}
 
-    @lombok.SneakyThrows
-    void usingNewExcelFile() {
-        assertionsFile = Files.createTempFile("Assertions-", ".xlsx").toFile();
-        try (FileOutputStream outAssertions = new FileOutputStream(assertionsFile)) {
-            generateAssertionsExcelFile(outAssertions);
-            //java.awt.Desktop.getDesktop().open(assertionsFile);
-        }
-
-        dummyFile = Files.createTempFile("Dummy-", ".xlsx").toFile();
-        try (FileOutputStream outDummy = new FileOutputStream(dummyFile)) {
-            generateDummyExcelFile(outDummy);
-            //java.awt.Desktop.getDesktop().open(dummyFile);
-        }
+    @BeforeEach
+    void setup() {
         excelAssert = assertThatExcel(dummyFile);
     }
 
     @AfterEach
-    @lombok.SneakyThrows
-    void tearDown() {
+    void cleanup() {
         if (excelAssert != null) {
             try {
                 excelAssert.close();
@@ -110,9 +97,35 @@ class AssertionReaderTest {
             }
             excelAssert = null;
         }
+    }
 
-        if (assertionsFile != null) Files.deleteIfExists(assertionsFile.toPath());
-        if (dummyFile != null) Files.deleteIfExists(dummyFile.toPath());
+    @BeforeAll
+    @lombok.SneakyThrows
+    static void globalSetup() {
+        assertionsFile = Files.createTempFile("Assertions-", ".xlsx").toFile();
+        try (FileOutputStream outAssertions = new FileOutputStream(assertionsFile)) {
+            generateAssertionsExcelFile(outAssertions);
+        }
+
+        dummyFile = Files.createTempFile("Dummy-", ".xlsx").toFile();
+        try (FileOutputStream outDummy = new FileOutputStream(dummyFile)) {
+            generateDummyExcelFile(outDummy);
+
+        }
+
+        if ("true".equalsIgnoreCase(System.getenv("OPEN_EXCEL"))) {
+            java.awt.Desktop.getDesktop().open(assertionsFile);
+            java.awt.Desktop.getDesktop().open(dummyFile);
+        }
+    }
+
+    @AfterAll
+    @lombok.SneakyThrows
+    static void globalCleanup() {
+        if (!"true".equalsIgnoreCase(System.getenv("OPEN_EXCEL"))) {
+            if (assertionsFile != null) Files.deleteIfExists(assertionsFile.toPath());
+            if (dummyFile != null) Files.deleteIfExists(dummyFile.toPath());
+        }
     }
 
     private static void generateDummyExcelFile(OutputStream output) throws IOException {

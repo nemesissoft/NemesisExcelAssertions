@@ -3,7 +3,6 @@ package io.github.michalbrylka.excelassertion.assertions;
 import io.github.michalbrylka.excelassertion.assertions.cell.CellAssertion;
 import io.github.michalbrylka.excelassertion.io.*;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.*;
@@ -31,8 +30,12 @@ class ExcelAssertionBuilderTest {
     void testAllAssertionsPass() {
         assertThatExcelFile
                 //check empty
-                .inSheet(1).has(
-                        cellAt("B1").empty()
+                .inSheet(1).have(
+                        cellAt("B1").empty(),
+
+                        cellAt("B2").empty(),
+                        cellAt("B2").withFormulaText(equalTo("""
+                                IF(A1=1, "One", "")""").ignoreCase())
                 )
                 //numbers
                 .inSheet("Numbers").have(
@@ -100,7 +103,7 @@ class ExcelAssertionBuilderTest {
         assertThatCode(() -> assertThatExcelFile.close())
                 .doesNotThrowAnyException();
 
-        assertThat(assertThatExcelFile.getAssertions()).hasSize(39);
+        assertThat(assertThatExcelFile.getAssertions()).hasSize(41);
     }
 
     @ParameterizedTest(name = "[{index}] {0}")
@@ -123,12 +126,17 @@ class ExcelAssertionBuilderTest {
                 Arguments.of(
                         Named.of("A1 not empty in sheet 1", 1),
                         cellAt("A1").empty(),
-                        "dupa"
+                        "Expecting null or empty but was: \"Quarterly Report\""
                 ),
                 Arguments.of(
                         Named.of("B1 is empty in sheet 1", 1),
                         cellAt("B1").withNumber(equalTo(1.0)),
-                        "dupa"
+                        "cannot add assertion for cell Strings!B1"
+                ),
+                Arguments.of(
+                        Named.of("B2 with empty formula result in sheet 1", 1),
+                        cellAt("B2").withText(containing("One")),
+                        "text at Strings!B2 to contain 'One' case sensitive"
                 ),
                 // Numbers
                 Arguments.of(
@@ -344,19 +352,20 @@ class ExcelAssertionBuilderTest {
     @lombok.SneakyThrows
     @BeforeAll
     static void globalSetup() {
-        Assertions.setRemoveAssertJRelatedElementsFromStackTrace(true);
-
         exampleFile = Files.createTempFile("Example-", ".xlsx").toFile();
         try (FileOutputStream out = new FileOutputStream(exampleFile)) {
             generateTestExcelFile(out);
-            //java.awt.Desktop.getDesktop().open(exampleFile);
         }
+
+        if ("true".equalsIgnoreCase(System.getenv("OPEN_EXCEL")))
+            java.awt.Desktop.getDesktop().open(exampleFile);
     }
 
     @lombok.SneakyThrows
     @AfterAll
     static void deleteTestFile() {
-        if (exampleFile != null) Files.deleteIfExists(exampleFile.toPath());
+        if (!"true".equalsIgnoreCase(System.getenv("OPEN_EXCEL")))
+            if (exampleFile != null) Files.deleteIfExists(exampleFile.toPath());
     }
 
     private static void generateTestExcelFile(OutputStream output) throws IOException {
@@ -388,7 +397,9 @@ class ExcelAssertionBuilderTest {
                     FormulaCellEntry.ofNoValue("A6", """
                             "123" & "456\""""),
                     FormulaCellEntry.ofNoValue("A7", """
-                            "=" & "SUM(1,2)"\s""")
+                            "=" & "SUM(1,2)"\s"""),
+                    FormulaCellEntry.ofNoValue("B2", """
+                            IF(A1=1, "One", "")""")
             )));
 
 
