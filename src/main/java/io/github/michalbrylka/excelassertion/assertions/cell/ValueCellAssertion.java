@@ -7,7 +7,7 @@ import org.assertj.core.api.SoftAssertions;
 @lombok.Getter(lombok.AccessLevel.PACKAGE)
 @lombok.EqualsAndHashCode(callSuper = true)
 public sealed abstract class ValueCellAssertion<TValue, TAssertion extends ValueCellAssertion<TValue, TAssertion>> extends CellAssertion<ValueCellAssertion<TValue, TAssertion>>
-        permits BooleanCellAssertion, ErrorTextCellAssertion, FormulaTextCellAssertion, NumberCellAssertion, TextCellAssertion, EmptyCellAssertion {
+        permits BooleanCellAssertion, DateTimeCellAssertion, EmptyCellAssertion, ErrorTextCellAssertion, FormulaTextCellAssertion, NumberCellAssertion, TextCellAssertion {
 
     protected ValueCellAssertion(String cellAddress) {
         super(cellAddress);
